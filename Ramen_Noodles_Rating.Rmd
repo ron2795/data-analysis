@@ -1,0 +1,177 @@
+---
+title: "R Notebook"
+author: "Ronak Songara"
+date: "16/07/2021"
+output:
+  html_notebook: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+# RAMEN NOODLES Analysis
+
+## ask & prepare
+
+
+#### load tidyverse package
+
+```{r}
+library(tidyverse)
+```
+
+
+#### read 'ramen ratings' dataset
+
+```{r}
+ramen_df <- read_csv("ramen-ratings.csv")
+```
+#### have a quick look on dataset with head,str functions
+
+```{r}
+head(ramen_df)
+```
+
+```{r}
+str(ramen_df)
+```
+
+
+```{r}
+summary(ramen_df)
+```
+#### how many unique brands are out there in global market ?
+```{r}
+n_distinct(ramen_df$Brand)
+```
+
+#### how many style of unique packaging ?
+```{r}
+n_distinct(ramen_df$Style)
+unique(ramen_df$Style)
+```
+
+
+```{r}
+library(skimr)
+skim(ramen_df)
+```
+
+#### convert data type from character to float in 'stars' column and separate top ramen noodles
+
+```{r}
+ramen_df <- ramen_df %>%
+  mutate(TopTenRanknigYear = str_sub(`Top Ten`,1,4),TopTenRanking = str_sub(`Top Ten`,7))
+```
+
+```{r}
+within(ramen_df,rm(TopTenRaning))
+```
+```{r warning=FALSE}
+ramen_df <- ramen_df %>%
+  mutate(Stars = as.double(Stars))
+```
+
+## process
+
+#### Q1: Country wise packaging styles?
+
+```{r}
+ggplot(ramen_df)+
+  geom_bar(mapping = aes(x = Style, fill = Style,))+
+  facet_wrap(~Country)+
+  labs(title = "country wise packaging style chart")
+```
+
+#### Q2: Country wise ramen rating bar chart?
+
+```{r}
+ggplot(ramen_df)+
+  geom_bar(mapping = aes(x = Stars, fill = Style,))+
+  facet_wrap(~Country)+
+  labs(title = "country wise rating chart according to packaging style")
+
+```
+
+```{r}
+ramen_df2 = ramen_df
+```
+
+#### gropuby country and findout mean ramen rating and plot a bar chart.
+
+
+
+```{r}
+ramen_df3 <- ramen_df2 %>%
+  group_by(Country) %>%
+  summarise(mean_rating = mean(Stars)) %>%
+  arrange(desc(mean_rating)) %>%
+  print
+```
+
+```{r}
+ggplot(ramen_df3)+
+  geom_col(mapping = aes(y = Country,x = mean_rating))+
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(title = "country wise mean rating")
+```
+
+#### also different kind of ramen packaging.
+
+```{r}
+ggplot(ramen_df)+
+  geom_bar(mapping = aes(x = Country, fill = Style))+
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(title = "country wise ramen packaging")
+```
+
+#### Q3. Which top 10 company share highest order in global market?
+
+
+```{r}
+ramen_df7 <- ramen_df2 %>%
+  group_by(Brand) %>%
+  summarise(quantity = n()) %>%
+  arrange(desc(quantity)) %>%
+  top_n(10) %>%
+  print
+```
+
+
+```{r}
+ggplot(ramen_df7) +
+  geom_col(mapping = aes(x = quantity,y = Brand))+
+  labs(title = "leading Ramen brands")
+```
+#### Q4: which kind of packing style are out there sharing percentage in global market?
+
+```{r}
+ramen_df5 <- ramen_df2 %>%
+  count(Style, name = "number_of_styles",sort = TRUE) %>%
+  mutate(percent_share_by_style = number_of_styles/sum(number_of_styles)*100) %>%
+  print
+```
+
+```{r}
+ggplot(ramen_df5)+
+  geom_col(mapping = aes(x=Style,y=number_of_styles))+
+  labs(title = "Ramen packing styles")
+```
+
+#### Q5: Which country order the most and there mean ratings ?
+
+```{r}
+ramen_df6 <- ramen_df %>%
+  group_by(Country) %>%
+  summarise(quantity = n(),mean_per_country = mean(Stars)) %>%
+  arrange(-quantity) %>%
+  print
+```
+
+```{r}
+ggplot(ramen_df6) +
+  geom_col(mapping = aes(x = quantity, y = Country))+
+  labs(title = "countries order the most Ramen noodles")
+```
+
+
