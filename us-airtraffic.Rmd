@@ -1,0 +1,100 @@
+---
+title: "R Notebook"
+author: "Ronak Songara"
+date: "19/07/2021"
+output:
+  html_document:
+    df_print: paged
+---
+
+# US AIR TRAFFIC DATASET ANALYSIS
+
+
+
+```{r}
+library(tidyverse)
+library(skimr)
+```
+
+```{r}
+departure_df <- read_csv("International_Report_Departures.csv")
+passanger_df <- read_csv("International_Report_Passengers.csv")
+```
+
+### Let's have a look on datasets
+```{r}
+head(departure_df)
+head(passanger_df)
+```
+
+```{r}
+summary(departure_df)
+```
+
+```{r}
+summary(passanger_df)
+```
+```{r}
+View(passanger_df)
+View(departure_df)
+```
+
+```{r}
+skim(departure_df)
+```
+
+```{r}
+skim(passanger_df)
+```
+
+```{r}
+departure_df2 = departure_df
+passanger_df2 = passanger_df
+```
+
+## Question to be solved?
+- Top 10 busiest airports
+- Monthly total of flights
+
+
+
+```{r}
+# select last 20 years data only
+takeOff_df <- departure_df2 %>%
+  select(data_dte, Year, Month, usg_apt_id, usg_apt) %>%
+  group_by(data_dte) %>%
+  arrange(data_dte)
+```
+
+```{r}
+takeoff_df <- takeOff_df %>%
+  filter(Year > 1999) %>%
+  print
+```
+
+
+```{r}
+View(takeOff_df)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
