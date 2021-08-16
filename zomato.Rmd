@@ -1,0 +1,244 @@
+---
+title: "Uber"
+author: "Ronak Songara"
+date: "7/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## NewYork Uber Analysis
+
+```{r}
+library(tidyverse)
+library(skimr)
+```
+
+```{r}
+zomato_df <- read_csv("zomato.csv")
+View(zomato_df)
+```
+
+
+
+
+
+```{r}
+head(zomato_df)
+```
+
+```{r}
+skim(zomato_df)
+```
+
+```{r}
+summary(zomato_df)
+```
+
+
+```{r}
+glimpse(zomato_df)
+str(zomato_df)
+```
+
+```{r}
+colnames(zomato_df)
+```
+
+```{r}
+zomato_df1 <- zomato_df %>%
+  select(name, online_order, book_table, rate, votes, location, rest_type, dish_liked, cuisines, `approx_cost(for two people)`,reviews_list, `listed_in(type)`,`listed_in(city)`)
+```
+
+
+```{r}
+top_rest <- zomato_df1 %>%
+  select(name) %>%
+  group_by(name) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  head(20) %>%
+  print
+
+
+```
+```{r}
+ggplot(top_rest) +
+  geom_col(mapping = aes(y = reorder(name,count), x = count, fill = count)) +
+  scale_fill_gradient2(low = "steelblue", high = "tomato", mid = "green", midpoint = 75) + 
+  labs(title = 'Top Restaurants in Bengaluru',subtitle = 'Which provide Zomato service')
+```
+
+
+```{r}
+online_order_takes <- zomato_df1 %>%
+  select(online_order) %>%
+  group_by(online_order) %>%
+  count() %>%
+  as.data.frame() %>%
+  mutate(percentage = round(online_order_takes$n/sum(n)*100,2)) %>%
+  print
+```
+
+```{r}
+ggplot(online_order_takes) +
+  geom_col(mapping = aes(x = online_order,y = percentage, fill = percentage)) +
+  scale_fill_gradient2(low = "steelblue", high = "tomato", midpoint = 50) + 
+  labs(title = 'Percentage vs Online order',subtitle = 'In Bengaluru zomato')
+```
+
+
+
+```{r}
+dish_liked_most <- zomato_df1 %>%
+  select(dish_liked) %>%
+  group_by(dish_liked) %>%
+  summarise(count = n()) %>%
+  arrange(-count) %>%
+  na.omit() %>%
+  head(20) %>%
+  print
+```
+```{r}
+ggplot(dish_liked_most) +
+  geom_col(mapping = aes(y = reorder(dish_liked,count), x = count, fill = count)) +
+  scale_fill_gradient2(low = "steelblue", high = "tomato", mid = "green", midpoint = 100) + 
+  labs(title = 'Most Liked dishes',subtitle = 'In Bengaluru zomato')
+  
+```
+
+```{r}
+Reservation <- zomato_df1 %>%
+  select(book_table) %>%
+  group_by(book_table) %>%
+  count() %>%
+  as.data.frame() %>%
+  mutate(percentage = round(online_order_takes$n/sum(n)*100,2)) %>%
+  print
+```
+
+
+
+```{r}
+ggplot(Reservation) +
+  geom_col(mapping = aes(x = book_table, y = percentage, fill = percentage)) +
+  scale_fill_gradient2(low = "steelblue", high = "tomato", midpoint = 50) + 
+  labs(title = 'Reservation',subtitle = 'In Bengaluru zomato')
+```
+
+
+```{r}
+highest_rating_rest2 <- zomato_df1 %>%
+  select(name,rate,votes) %>%
+  filter(rate != 'NEW') %>%
+  separate(col=rate, into=c('rating', 'rating_out_of'), sep='/') %>%
+  mutate(rating = as.double(rating),rating_out_of = as.double(rating_out_of)) %>%
+  group_by(name) %>%
+  summarise(mean_rating = mean(rating)) %>%
+  arrange(-mean_rating) %>%
+  na.omit() %>%
+  head(30) %>%
+  print
+```
+
+
+```{r}
+ggplot(highest_rating_rest2) +
+  geom_col(mapping = aes(x = mean_rating, y = reorder(name,mean_rating), fill = mean_rating)) +
+  scale_fill_gradient2(low = "steelblue", high = "tomato", mid = "palegreen",midpoint = 4.75) + 
+  labs(title = 'Highest rated eating places',subtitle = 'In Bengaluru zomato')
+```
+
+```{r}
+highest_rating_rest3 <- zomato_df1 %>%
+  select(name, rate, votes) %>%
+  filter(rate != 'NEW') %>%
+  separate(col=rate, into=c('rating', 'rating_out_of'), sep='/') %>%
+  mutate(rating = as.double(rating),rating_out_of = as.double(rating_out_of)) %>%
+  group_by(name) %>%
+  arrange(desc(rating)) %>%
+  distinct(name,rating) %>%
+  na.omit() %>%
+  print
+```
+```{r}
+ggplot(highest_rating_rest3) +
+  geom_histogram(mapping = aes(x = rating),fill = 'tomato',color = 'white')
+```
+
+
+```{r}
+people_mostly_prefer <- zomato_df1 %>%
+  select(rest_type) %>%
+  group_by(rest_type) %>%
+  summarise(count = n()) %>%
+  arrange(-count) %>%
+  head(20) %>%
+  print
+```
+
+
+```{r}
+ggplot(people_mostly_prefer) +
+  geom_col(mapping = aes(y = reorder(rest_type,count), x = count, fill = count)) +
+  scale_fill_gradient2(low = "steelblue", high = "tomato", mid = "palegreen",midpoint = 10000) + 
+  labs(title = 'What People prefers',subtitle = 'In Bengaluru zomato')
+  
+```
+
+
+
+```{r}
+loc <- zomato_df1 %>%
+  select(location) %>%
+  group_by(location) %>%
+  summarise(count = n()) %>%
+  arrange(-count) %>%
+  head(20) %>%
+  print
+
+```
+
+
+```{r}
+ggplot(loc) +
+  geom_col(mapping = aes(y = reorder(location,count),x = count, fill = count)) +
+  scale_fill_gradient2(low = "gray70", high = "tomato", mid = "steelblue",midpoint = 3000) + 
+  labs(title = 'Famous Location',subtitle = 'In Bengaluru zomato')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
